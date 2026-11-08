@@ -65,6 +65,24 @@ input[type=checkbox]{padding:0}
 .grid{grid-template-columns:repeat(2,1fr);gap:.6rem}
 #inv img{min-width:0}
 footer{padding:.8rem;font-size:.75rem}
+
+/* Lumétrica minimal dashboard widgets */
+.lumetrica-widgets{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.75rem;margin:1rem 0}
+.lw-card{background:var(--card);border:1px solid var(--bd);border-radius:1rem;padding:1rem;min-width:0;box-shadow:0 3px 14px #102b3510}
+.lw-card.wide{grid-column:1/-1}
+.lw-head{display:flex;align-items:center;justify-content:space-between;gap:.5rem;margin-bottom:.65rem;color:var(--sub);font-size:.83rem;font-weight:650}
+.lw-icon{display:inline-grid;place-items:center;width:1.8rem;height:1.8rem;border-radius:.65rem;background:var(--panel);font-size:1rem}
+.lw-value{font-size:clamp(1.15rem,4vw,1.55rem);font-weight:750;color:var(--title);letter-spacing:-.035em;overflow-wrap:anywhere}
+.lw-sub{font-size:.76rem;color:var(--sub);opacity:.8;margin-top:.25rem}
+.lw-list{display:grid;gap:.55rem}
+.lw-row{display:flex;align-items:center;justify-content:space-between;gap:.6rem;font-size:.82rem;color:var(--txt);min-width:0}
+.lw-row>span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lw-bar{height:.42rem;background:var(--panel);border-radius:1rem;overflow:hidden;flex:1;min-width:2rem}
+.lw-bar>i{display:block;height:100%;background:#78D8C0;border-radius:1rem}
+.lw-empty{font-size:.8rem;color:var(--sub);opacity:.75}
+.lw-link{border:0;background:none;color:var(--sub);font:inherit;font-size:.75rem;text-decoration:underline;cursor:pointer;padding:0}
+@media(max-width:390px){.lumetrica-widgets{gap:.55rem}.lw-card{padding:.8rem}.lw-value{font-size:1.12rem}}
+@media(min-width:700px){.lumetrica-widgets{grid-template-columns:repeat(3,minmax(0,1fr))}}
 </style></head><body>
 <nav><div class="brand"><span></span>LUMÉTRICA</div><button data-v="home"><i>🏠</i>Principal</button><button data-v="money"><i>💰</i>Dinero</button><button data-v="cal"><i>📅</i>Calendario</button><button data-v="app"><i>🧾</i>Facturas</button><button data-v="calc"><i>🧮</i>Calculadora</button><button data-v="hist"><i>🕘</i>Historial</button><button data-v="set"><i>⚙️</i>Ajustes</button></nav>
 <main>
@@ -86,7 +104,7 @@ const FIJOS=[["LUZ","⚡"],["AGUA","💧"],["INTERNET","🌐"],["VEHÍCULO","�
 const CATS0=["GASTO PERSONAL","ALIMENTACIÓN","TRANSPORTE","ENTRETENIMIENTO","RECREACIÓN","INVERSIÓN","OTROS"];
 const IVAS=[0,1,2,4,13];
 const ld=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))||d}catch(e){return d}};
-const sv=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
+const sv=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));if(typeof syncNativeWidgetData==="function")setTimeout(syncNativeWidgetData,180)}catch(e){console.warn("Lumétrica: no se pudo guardar",k,e)}};
 const _n=new Date();let today=`${_n.getFullYear()}-${String(_n.getMonth()+1).padStart(2,"0")}-${String(_n.getDate()).padStart(2,"0")}`;
 let S={date:today,budget:"",name:"",fixed:{},items:[]};
 let CFG=ld("cr_cfg",{fs:16,ff:"system-ui,-apple-system,'Segoe UI',Roboto,sans-serif",theme:"auto"});
@@ -96,7 +114,7 @@ function applyCfg(){const r=document.documentElement;r.style.setProperty("--fs",
 function view(v){document.querySelectorAll(".v").forEach(e=>e.classList.toggle("on",e.id===v));document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("on",b.dataset.v===v));
  $("nav").style.display=v==="home"?"none":"flex";if(v==="home")drawHomeSum();if(v==="money")drawMoney();if(v==="cal")drawCal();if(v==="calc")drawCalc();if(v==="app")drawApp();if(v==="hist")drawHist();if(v==="set")drawSet();scrollTo(0,0)}
 document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>view(b.dataset.v));
-$("#home").innerHTML=`<div class="strip"><img src="${LOGO2}" alt="Lumétrica"></div><div id="homesum"></div><div class="home"><button class="btn" onclick="view('money')">Mi dinero</button><button class="btn" onclick="view('cal')">Calendario</button><button class="btn s" onclick="view('app')">Facturas</button><button class="btn s" onclick="view('calc')">Calculadora</button><button class="btn s" onclick="view('hist')">Historial</button><button class="btn s" onclick="view('set')">Ajustes</button></div>`;
+$("#home").innerHTML=`<div class="strip"><img src="${LOGO2}" alt="Lumétrica"></div><div id="homesum"></div><div id="lumetrica-widgets" class="lumetrica-widgets"></div><div class="home"><button class="btn" onclick="view('money')">Mi dinero</button><button class="btn" onclick="view('cal')">Calendario</button><button class="btn s" onclick="view('app')">Facturas</button><button class="btn s" onclick="view('calc')">Calculadora</button><button class="btn s" onclick="view('hist')">Historial</button><button class="btn s" onclick="view('set')">Ajustes</button></div>`;
 const empList=()=>`<datalist id="emps">${EMP.map(e=>`<option value="${esc(e)}">`).join("")}</datalist>`;
 function addEmp(v){v=(v||"").trim();if(v&&!EMP.includes(v)){EMP.push(v);sv("cr_emp",EMP)}}
 function drawApp(){
@@ -236,7 +254,37 @@ function fin(){let ing=0,gas=0,gm=0;MOV.forEach(m=>{if(m.void)return;if(m.type==
  else if(total>0&&disp<total*.15){st="y";why="Tu dinero disponible es menos del 15% de tu dinero total."}
  return{total,com,res,disp,gm,pres,st,why,ing,gas}}
 const sem=f=>`<div class="sem ${f.st}"><span class="dot"></span><div><b>${{g:"Verde",y:"Amarillo",r:"Rojo",n:"Sin datos"}[f.st]}</b><br><small>${f.why}</small></div></div>`;
-function drawHomeSum(){const f=fin(),p=pays().slice(0,3);$("#homesum").innerHTML=`<div class="card hs"><div class="hl">Dinero disponible para gastar</div><div class="hv">${ACC.length?CRC(f.disp):"Sin configurar"}</div>${sem(f)}<div class="hl">Próximos pagos</div>${p.length?p.map(o=>`<div class="line" style="margin-top:.3rem"><span>${esc(o.name)} <small class="hint">${cd(o.due)}</small></span><b>${CRC(o.amount)}</b></div>`).join(""):'<small class="hint">No hay pagos pendientes registrados.</small>'}</div>`}
+function drawHomeSum(){const f=fin(),p=pays().slice(0,3);$("#homesum").innerHTML=`<div class="card hs"><div class="hl">Dinero disponible para gastar</div><div class="hv">${ACC.length?CRC(f.disp):"Sin configurar"}</div>${sem(f)}<div class="hl">Próximos pagos</div>${p.length?p.map(o=>`<div class="line" style="margin-top:.3rem"><span>${esc(o.name)} <small class="hint">${cd(o.due)}</small></span><b>${CRC(o.amount)}</b></div>`).join(""):'<small class="hint">No hay pagos pendientes registrados.</small>'}</div>`;drawLumetricaWidgets();syncNativeWidgetData()}
+
+function drawLumetricaWidgets(){
+ const root=$("#lumetrica-widgets");if(!root)return;
+ const month=ym(today),valid=MOV.filter(m=>!m.void&&ym(m.date)===month),expenses=valid.filter(m=>m.type==="gas"),income=valid.filter(m=>m.type==="ing");
+ const totalGas=expenses.reduce((n,m)=>n+num(m.amount),0),totalIncome=income.reduce((n,m)=>n+num(m.amount),0);
+ const upcoming=pays().slice(0,3),active=ACC.filter(a=>a.active),recent= MOV.filter(m=>!m.void&&m.type==="ing").sort((a,b)=>(b.date+(b.time||"")).localeCompare(a.date+(a.time||""))).slice(0,3);
+ const groups={};expenses.forEach(m=>{const k=m.cat||"OTROS";groups[k]=(groups[k]||0)+num(m.amount)});
+ const chart=Object.entries(groups).sort((a,b)=>b[1]-a[1]).slice(0,4),max=chart.length?chart[0][1]:0;
+ const card=(icon,title,body,wide=false)=>`<section class="lw-card ${wide?"wide":""}"><div class="lw-head"><span>${icon} ${title}</span></div>${body}</section>`;
+ const rows=(arr,empty)=>arr.length?`<div class="lw-list">${arr}</div>`:`<div class="lw-empty">${empty}</div>`;
+ root.innerHTML=[
+  card("💰","Saldo disponible",`<div class="lw-value">${ACC.length?CRC(fin().disp):"Sin configurar"}</div><div class="lw-sub">Después de obligaciones y ahorro reservado</div>`),
+  card("📉","Gastos del mes",`<div class="lw-value">${CRC(totalGas)}</div><div class="lw-sub">${expenses.length} movimientos · ${CRC(totalIncome)} de ingresos</div>`),
+  card("📅","Próximos pagos",rows(upcoming.map(o=>`<div class="lw-row"><span>${esc(o.name)}<small class="lw-sub"> · ${cd(o.due)}</small></span><b>${CRC(o.amount)}</b></div>`).join(""),"No hay pagos pendientes.")),
+  card("🏦","Cuentas financieras",rows(active.slice(0,4).map(a=>`<div class="lw-row"><span>${esc(a.name)}</span><b>${CRC(bal(a.id))}</b></div>`).join(""),"Todavía no has creado cuentas.")),
+  card("↗️","Ingresos recientes",rows(recent.map(m=>`<div class="lw-row"><span>${esc(m.desc||"Ingreso")}<small class="lw-sub"> · ${m.date}</small></span><b>${CRC(m.amount)}</b></div>`).join(""),"No hay ingresos registrados.")),
+  card("📊","Gráfica de gastos",chart.length?`<div class="lw-list">${chart.map(([name,value])=>`<div class="lw-row"><span style="width:34%;min-width:0">${esc(name)}</span><div class="lw-bar"><i style="width:${Math.max(3,Math.round(value/max*100))}%"></i></div><b>${CRC(value)}</b></div>`).join("")}</div><div class="lw-sub">Distribución por categoría · mes actual</div>`:'<div class="lw-empty">Registra gastos para generar la gráfica.</div>',true)
+ ].join("");
+}
+function syncNativeWidgetData(){
+ try{
+  if(!window.LumetricaNative||typeof window.LumetricaNative.updateWidgetData!=="function")return;
+  const month=ym(today),valid=MOV.filter(m=>!m.void&&ym(m.date)===month),expenses=valid.filter(m=>m.type==="gas"),income=MOV.filter(m=>!m.void&&m.type==="ing").sort((a,b)=>(b.date+(b.time||"")).localeCompare(a.date+(a.time||""))).slice(0,3);
+  const upcoming=pays().slice(0,3),accounts=ACC.filter(a=>a.active).slice(0,4);
+  const cats={};expenses.forEach(m=>{const k=m.cat||"OTROS";cats[k]=(cats[k]||0)+num(m.amount)});
+  const data={available:ACC.length?fin().disp:0,expenses:expenses.reduce((n,m)=>n+num(m.amount),0),upcoming:upcoming.map(o=>({name:o.name,due:cd(o.due),amount:num(o.amount)})),accounts:accounts.map(a=>({name:a.name,balance:bal(a.id)})),recentIncome:income.map(m=>({name:m.desc||"Ingreso",amount:num(m.amount),date:m.date})),chart:Object.entries(cats).sort((a,b)=>b[1]-a[1]).slice(0,4).map(([name,value])=>({name,value}))};
+  window.LumetricaNative.updateWidgetData(JSON.stringify(data));
+ }catch(e){console.warn("Lumétrica: no se pudo actualizar el widget Android",e)}
+}
+
 function parseQuick(t){const c=t.replace(/₡/g,"").trim(),mm=c.match(/(\d[\d.,\s]*)(\s*(?:k|mil))?\s*$/i);if(!mm)return"No encontré un monto. Escribe, por ejemplo: Almuerzo 3500.";let raw=mm[1].trim();if(/\s/.test(raw)&&!/^\d{1,3}( \d{3})+([.,]\d{1,2})?$/.test(raw))raw=raw.split(/\s+/).pop();let a=/^\d{1,3}([.,]\d{3})+$/.test(raw.replace(/ /g,""))?parseFloat(raw.replace(/[.,\s]/g,"")):parseFloat(raw.replace(/\s/g,"").replace(",","."));if(mm[2])a*=1000;if(!(a>0))return"El monto debe ser mayor a 0.";const d=c.slice(0,mm.index).replace(/[:\-–\s]+$/,"").trim(),ing=/^(ingreso|salario|sueldo|dep[oó]sito|pago recibido)/i.test(d);const k=KW.find(x=>x[1].test(d));return{type:ing?"ing":"gas",desc:d?d[0].toUpperCase()+d.slice(1):(ing?"Ingreso":"Gasto"),amount:a,cat:ing?"INGRESO":k?k[0]:"OTROS",date:today}}
 function quick(){const r=parseQuick($("#qin").value),ac=ACC.find(a=>a.active);if(typeof r==="string"){QE=r;Q=null}else if(!ac){QE="Primero crea una cuenta activa.";Q=null}else{QE="";Q=Object.assign(r,{acc:ac.id})}drawMoney()}
 function rd(){Q.acc=$("#qac").value;Q.type=$("#qt").value;Q.date=$("#qd").value;Q.desc=$("#qs").value;Q.amount=$("#qa").value;Q.cat=$("#qc").value}
