@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Lumétrica</string>
+    <string name="widget_description">Resumen financiero de Lumétrica: saldo, gastos, pagos, cuentas e ingresos.</string>
+</resources>
