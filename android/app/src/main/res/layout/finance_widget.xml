@@ -1,0 +1,27 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root" android:layout_width="match_parent"
+    android:layout_height="match_parent" android:orientation="vertical"
+    android:padding="14dp" android:background="#FFFDFDFD">
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:text="LUMÉTRICA  ·  RESUMEN" android:textColor="#65747B"
+        android:textStyle="bold" android:textSize="11sp" />
+    <TextView android:id="@+id/w_available" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:text="Disponible: ₡0"
+        android:textColor="#142D35" android:textStyle="bold" android:textSize="21sp"
+        android:paddingTop="7dp" />
+    <TextView android:id="@+id/w_expenses" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:text="Gastos del mes: ₡0"
+        android:textColor="#354950" android:textSize="13sp" android:paddingTop="5dp" />
+    <TextView android:id="@+id/w_payments" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:text="Próximos pagos: sin datos"
+        android:textColor="#354950" android:textSize="12sp" android:paddingTop="7dp" />
+    <TextView android:id="@+id/w_accounts" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:text="Cuentas: sin datos"
+        android:textColor="#354950" android:textSize="12sp" android:paddingTop="4dp" />
+    <TextView android:id="@+id/w_income" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:text="Ingresos recientes: sin datos"
+        android:textColor="#354950" android:textSize="12sp" android:paddingTop="4dp" />
+    <TextView android:id="@+id/w_chart" android:layout_width="match_parent"
+        android:layout_height="wrap_content" android:text="Gastos por categoría: sin datos"
+        android:textColor="#65747B" android:textSize="11sp" android:paddingTop="6dp" />
+</LinearLayout>
